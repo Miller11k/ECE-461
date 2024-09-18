@@ -2,64 +2,98 @@ import * as fs from 'fs';
 import { exit } from 'process';
 
 /**
- * Checks if a given URL is accessible by making a HEAD request.
- * Returns true if the response is successful (status code in the range 200-299),
- * otherwise returns false. Catches any errors in the process and returns false.
+ * Tests if a given URL is accessible by making an HTTP HEAD request.
+ * 
+ * This function sends a HEAD request to the provided URL to check its accessibility. 
+ * A successful response (HTTP status code 200-299) means the URL is accessible.
+ * If the request fails or the status code falls outside the success range, the function 
+ * returns false. It catches errors during the process and ensures the function resolves 
+ * to a boolean result.
  *
  * @export
  * @async
  * @param {string} url - The URL to test for accessibility.
- * @returns {Promise<boolean>} - A promise that resolves to true if the URL is accessible, otherwise false.
+ * @returns {Promise<boolean>} A promise that resolves to true if the URL is accessible (status 200-299), otherwise false.
+ * 
+ * @example
+ * // Example usage:
+ * const isAccessible = await test_url('https://github.com/user/repo');
+ * console.log(isAccessible); // Outputs: true or false
  */
 export async function test_url(url: string): Promise<boolean> {
-    try {    // Try to connect to site, return true if the response is ok
+    try {
+        // Send a HEAD request to the URL to check if it's accessible.
         const response = await fetch(url, { method: 'HEAD' });
+
+        // Return true if the response is in the 200-299 range (OK status).
         return response.ok;
-    } catch (error) {    // If unable to connect to site, return false
+    } catch (error) {
+        // Catch any errors and return false, indicating the URL is not accessible.
         return false;
     }
 }
 
 /**
  * Determines the type of URL based on the domain.
- * If the URL contains "github.com" or "npmjs.com", it returns "github" or "npmjs" respectively, 
- * with the ".com" stripped. If neither is matched, it returns "other".
+ * 
+ * This function analyzes the provided URL and determines if it belongs to GitHub or npmjs domains.
+ * It uses a regular expression to identify the domain by looking for 'github.com' or 'npmjs.com'.
+ * If neither domain is matched, it returns "other".
  *
  * @export
  * @param {string} url - The URL to evaluate.
- * @returns {string} - Returns "github" for GitHub URLs, "npmjs" for npmJS URLs, or "other" if neither.
+ * @returns {string} Returns "github" for GitHub URLs, "npmjs" for npmJS URLs, or "other" if neither is matched.
+ * 
+ * @example
+ * // Example usage:
+ * const urlType = url_type('https://github.com/user/repo');
+ * console.log(urlType); // Outputs: "github"
  */
 export function url_type(url: string): string {
-    // Define the regex pattern to match specific URLs
+    // Define a regular expression to match either 'github.com' or 'npmjs.com'.
     let regex = new RegExp("(github|npmjs)\\.com", "i");
+
+    // Execute the regular expression on the URL.
     let match = regex.exec(url);
     
+    // If a match is found, return the captured group ("github" or "npmjs").
     if (match) {
-        return match[1];  // Return the captured group (github or npmjs)
+        return match[1]; // Return "github" or "npmjs" based on the match.
     }
 
-    return "other"; // Return "other" if no match
+    // If no match is found, return "other".
+    return "other";
 }
 
 /**
  * Parses a file containing URLs and returns them as an array of strings.
- * If the file does not exist, returns 0.
  * 
+ * This function reads the contents of a file where each line contains a URL.
+ * It returns the URLs as an array of strings. If the file does not exist, the function exits 
+ * the process with a status code of 1. If the file is empty, it returns an empty array.
+ *
  * @param {string} filename - The path to the file containing the URLs.
- * @returns {string[] | number} An array of URLs if the file exists, or `0` if the file does not exist.
+ * @returns {string[] | number} An array of URLs if the file exists and has content, or `0` if the file does not exist.
+ * 
+ * @example
+ * // Example usage:
+ * const urls = parse_urls('urls.txt');
+ * console.log(urls); // Outputs: ['https://github.com/user/repo', ...]
  */
 export function parse_urls(filename: string): string[] {
-    // Exit 1 (for error) if file does not exist
+    // Check if the file exists. If not, exit the process with status 1 (error).
     if (!fs.existsSync(filename)) {
-      exit(1);
+        exit(1); // File does not exist, so exit the process with error.
     }
   
-    const file_content = fs.readFileSync(filename, 'utf-8'); // Read file content
+    // Read the file content as a UTF-8 string.
+    const file_content = fs.readFileSync(filename, 'utf-8');
   
-    // Return an empty array if the file content is empty
+    // If the file content is empty, return an empty array.
     if (!file_content) {
-      return [];
+        return [];
     }
   
-    return file_content.split('\n'); // Return array of URLs
+    // Split the file content by newline to get an array of URLs and return it.
+    return file_content.split('\n');
 }
