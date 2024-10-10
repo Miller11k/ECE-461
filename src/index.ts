@@ -1,5 +1,5 @@
 import { exit } from "process";
-import { get_valid_urls, URLType } from "./URL";
+import { get_valid_urls } from "./URL";
 import { getMetrics } from "./metrics/getMetrics";
 import { logMessage } from './logFile';
 import { checkGitHubToken, checkLogFile } from "./checkEnv";

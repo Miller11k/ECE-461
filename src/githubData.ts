@@ -1,8 +1,4 @@
-import * as sqlite3 from 'sqlite3';
 import axios from 'axios';
-import { fetchJsonFromApi } from "./API";
-import { URLType } from './URL';
-import { extractLastIssuesUrlFromJson } from './json';
 import { logMessage } from './logFile';
 
 /**

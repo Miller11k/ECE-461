@@ -1,4 +1,3 @@
-import { getTimestampWithThreeDecimalPlaces } from "./getLatency";
 import { logMessage } from '../logFile';
 
 /**

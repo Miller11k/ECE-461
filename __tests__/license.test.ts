@@ -1,8 +1,5 @@
 import * as fs from 'fs';
-import * as path from 'path';
-import git from 'isomorphic-git';
 import { getLicenseScore } from '../src/metrics/license';
-import { getTimestampWithThreeDecimalPlaces } from '../src/metrics/getLatency';
 
 jest.setTimeout(60000 * 2); // 2 minutes
 

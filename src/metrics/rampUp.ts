@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { getGitHubAPILink } from '../githubData';
 import { fetchJsonFromApi } from '../API';
 import { getTimestampWithThreeDecimalPlaces } from './getLatency';

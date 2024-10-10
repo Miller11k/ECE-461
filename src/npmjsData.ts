@@ -1,5 +1,4 @@
 import { fetchJsonFromApi } from './API';
-import { getGitHubAPILink, getContributionCounts } from './githubData';
 import { logMessage } from './logFile';
 
 /**
