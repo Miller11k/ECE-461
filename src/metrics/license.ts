@@ -13,12 +13,13 @@ export async function getLicenseScore(URL: string): Promise<{ score: number, lat
     const latency_start = getTimestampWithThreeDecimalPlaces(); // Start timing the fetch
     logMessage('getLicenseScore', ['Latency tracking started.', `Start timestamp: ${latency_start}`]);
 
-    const repoDir = './temp-repo'; // Directory to clone the repo into
     let gitURL: string | null = "";
     gitURL = URL.replace(/^git\+/, '')
                 .replace(/^ssh:\/\/git@github.com/, 'https://github.com')
                 .replace(/\.git$/, '')
                 .replace(/^git:\/\//, 'https://');
+    const repoName = gitURL.split('/').pop();
+    const repoDir = `./temp-${repoName}`; // Directory to clone the repo into
 
     try {
         // Clone the repository
