@@ -6,7 +6,6 @@ install_npm_packages() {
     if ! npm install; then
         exit 1
     fi
-    # Install the latest version of axios
     npm install axios@latest
 }
 
@@ -31,34 +30,33 @@ setup_environment_files() {
 
 # Function to check environment variables in the .env file
 check_environment_variables() {
-    # If the .env file exists, check for required variables
     if [ -f .env ]; then
         # Check for GITHUB_TOKEN; exit if not set
         if ! grep -q "GITHUB_TOKEN=" .env || [ -z "$(grep 'GITHUB_TOKEN' .env | cut -d '=' -f2 | tr -d '[:space:]')" ]; then
+            echo "Error: GITHUB_TOKEN is not set."
             exit 1
         fi
 
         # Check for LOG_LEVEL; exit if not set
         if ! grep -q "LOG_LEVEL=" .env || [ -z "$(grep 'LOG_LEVEL' .env | cut -d '=' -f2 | tr -d '[:space:]')" ]; then
+            echo "Error: LOG_LEVEL is not set."
             exit 1
         fi
 
         # Check for LOG_FILE; warn if not set (but do not exit)
         if ! grep -q "LOG_FILE=" .env || [ -z "$(grep 'LOG_FILE' .env | cut -d '=' -f2 | tr -d '[:space:]')" ]; then
-            :
+            echo "Warning: LOG_FILE is not set."
         fi
-    else    # Environment file does not exist; return error
+    else
+        echo "Error: .env file does not exist."
         exit 1
     fi
 }
 
 # Function to delete npm packages and related files
 delete_npm_packages() {
-    # Remove all JavaScript files in the current directory
     find . -type f -name "*.js" ! -name "jest.config.js" -exec rm -f {} +
-    # Remove all files in the dist directory
     find dist -mindepth 1 -delete
-    # Remove node_modules directory
     rm -rf node_modules
 }
 
@@ -71,11 +69,9 @@ process_url_file() {
 # Function to run the project
 run_project() {
     check_environment_variables  # Ensure environment variables are set
-    # Check if the compiled JavaScript file exists
     if [ -f "dist/index.js" ]; then
         node dist/index.js "$1"  # Run the project if the file exists
     else
-        # Compile TypeScript files if JavaScript file doesn't exist
         if compile_all; then
             node dist/index.js "$1"  # Run the project after compilation
         else
@@ -89,30 +85,19 @@ run_tests() {
     if [ -f "jest.config.ts" ]; then
         rm "jest.config.ts"
     fi
-    # Add your test commands here
-    # Run the tests and capture the output
+
     output=$(npm test -- --coverage --silent 2>&1)
-
-    # Print the captured output for debugging
-
-    # Extract the number of passing and total tests using standard grep/sed
     passed=$(echo "$output" | grep 'Tests:.*passed' | sed -E 's/Tests:.* ([0-9]+) passed.*/\1/')
     total=$(echo "$output" | grep 'Tests:.*total' | sed -E 's/Tests:.* ([0-9]+) total.*/\1/')
-
-    # Extract the line coverage percentage from the coverage summary
     coverage=$(echo "$output" | grep -A 0 'All files' | tail -n 1 | awk -F'|' '{print $5}' | tr -d ' %' | awk '{printf "%.0f", $1}')
 
-
-    # Ensure we have valid values, and if tests were successful (passed == total)
     if [ -z "$passed" ] || [ -z "$total" ] || [ -z "$coverage" ]; then
         echo "Error: Unable to extract test results."
         exit 1
     fi
 
-    # Format output correctly
     echo "$passed/$total test cases passed. $coverage% line coverage achieved."
 
-    # Check if all tests passed
     if [ "$passed" -eq "$total" ]; then
         exit 0
     else
@@ -121,28 +106,24 @@ run_tests() {
 }
 
 # Main script execution
-
-# Check for exactly 1 argument; exit if not
 if [ "$#" -ne 1 ]; then
+    echo "Error: Exactly one argument is required."
     exit 1
 fi
 
-# Check if the argument is "install"
 if [ "$1" = "install" ]; then
     install_npm_packages  # Install npm packages
     setup_environment_files  # Set up environment files
     compile_all  # Compile project files
-
-# Check if the argument is "test"
+    exit 0
 elif [ "$1" = "test" ]; then
     run_tests  # Run tests
-
-# Otherwise, treat it as a URL_FILE
 else
     if [ -f "$1" ]; then
         process_url_file "$1"  # Process the URL file
         run_project "$1"  # Run the project with the URL file
     else
-        exit 1  # Exit if the URL file does not exist
+        echo "Error: The specified URL file does not exist."
+        exit 1
     fi
 fi
