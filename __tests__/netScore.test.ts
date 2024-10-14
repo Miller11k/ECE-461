@@ -28,7 +28,7 @@ describe('getNetScore', () => {
     // = 0.2 + 0.175 + 0.2125 + 0.18 + 0.08 = 0.8475, rounded to 0.8
 
     expect(result).toEqual(0.8); // Final rounded net score
-});
+  });
 
   it('should handle a case with all zeros and return 0', async () => {
     const ramp_up_time = 0;
@@ -64,6 +64,38 @@ describe('getNetScore', () => {
 
     expect(result).toEqual(0.0); // Final rounded score
   });
+
+  it('should return zero net score if license is zero', async () => {
+    const ramp_up_time = 0.5;
+    const correctness = 0.2;
+    const bus_factor = 0.9;
+    const responsive_maintainer = 0.3;
+    const license = 0.0;
+
+    const result = await getNetScore(ramp_up_time, correctness, bus_factor, responsive_maintainer, license);
+
+    expect(logMessage).toHaveBeenCalledWith('getNetScore', ['Calculating net score.', 'Starting calculations.']);
+    expect(logMessage).toHaveBeenCalledWith('getNetScore', ['Net score calculated before rounding.', `Net score: 0`]);
+    expect(logMessage).toHaveBeenCalledWith('getNetScore', ['Net score rounded.', `Rounded net score: 0`]);
+
+    expect(result).toEqual(0); // Zero license should yield a zero net score
+  });
+
+  it('should return one net score if all metrics are one', async () => {
+    const ramp_up_time = 1.0;
+    const correctness = 1.0;
+    const bus_factor = 1.0;
+    const responsive_maintainer = 1.0;
+    const license = 1.0;
+
+    const result = await getNetScore(ramp_up_time, correctness, bus_factor, responsive_maintainer, license);
+
+    expect(logMessage).toHaveBeenCalledWith('getNetScore', ['Calculating net score.', 'Starting calculations.']);
+    expect(logMessage).toHaveBeenCalledWith('getNetScore', ['Net score calculated before rounding.', `Net score: 1`]);
+    expect(logMessage).toHaveBeenCalledWith('getNetScore', ['Net score rounded.', `Rounded net score: 1`]);
+
+    expect(result).toEqual(1); // All ones should yield a one net score
+  });
 });
 
 describe('getNetScoreLatency', () => {
@@ -92,50 +124,50 @@ describe('getNetScoreLatency', () => {
 
     // Total latency = 10.5 + 8.3 + 6.7 + 9.2 + 4.1 = 38.8
     expect(result).toEqual(38.8); // Final rounded net score latency
-});
+  });
 
-it('should handle zero latencies and return 0', async () => {
-  const ramp_up_latency = 0;
-  const correctness_latency = 0;
-  const bus_factor_latency = 0;
-  const responsive_maintainer_latency = 0;
-  const license_latency = 0;
+  it('should handle zero latencies and return 0', async () => {
+    const ramp_up_latency = 0;
+    const correctness_latency = 0;
+    const bus_factor_latency = 0;
+    const responsive_maintainer_latency = 0;
+    const license_latency = 0;
 
-  const result = await getNetScoreLatency(
-    ramp_up_latency,
-    correctness_latency,
-    bus_factor_latency,
-    responsive_maintainer_latency,
-    license_latency
-  );
+    const result = await getNetScoreLatency(
+      ramp_up_latency,
+      correctness_latency,
+      bus_factor_latency,
+      responsive_maintainer_latency,
+      license_latency
+    );
 
-  expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Calculating net score latency.', 'Starting latency calculations.']);
-  expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Net score latency calculated before rounding.', `Net score latency: 0`]);
-  expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Net score latency rounded.', `Rounded net score latency: 0`]); // Adjusted this log expectation to match actual value
+    expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Calculating net score latency.', 'Starting latency calculations.']);
+    expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Net score latency calculated before rounding.', `Net score latency: 0`]);
+    expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Net score latency rounded.', `Rounded net score latency: 0`]); // Adjusted this log expectation to match actual value
 
-  expect(result).toEqual(0); // Zero latencies should yield a zero net score latency
-});
+    expect(result).toEqual(0); // Zero latencies should yield a zero net score latency
+  });
 
-it('should handle a mix of latencies and return the correct latency sum', async () => {
-  const ramp_up_latency = 1.2;
-  const correctness_latency = 3.4;
-  const bus_factor_latency = 5.6;
-  const responsive_maintainer_latency = 7.8;
-  const license_latency = 9.1;
+  it('should handle a mix of latencies and return the correct latency sum', async () => {
+    const ramp_up_latency = 1.2;
+    const correctness_latency = 3.4;
+    const bus_factor_latency = 5.6;
+    const responsive_maintainer_latency = 7.8;
+    const license_latency = 9.1;
 
-  const result = await getNetScoreLatency(
-    ramp_up_latency,
-    correctness_latency,
-    bus_factor_latency,
-    responsive_maintainer_latency,
-    license_latency
-  );
+    const result = await getNetScoreLatency(
+      ramp_up_latency,
+      correctness_latency,
+      bus_factor_latency,
+      responsive_maintainer_latency,
+      license_latency
+    );
 
-  expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Calculating net score latency.', 'Starting latency calculations.']);
-  expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Net score latency calculated before rounding.', `Net score latency: 27.1`]); // Adjusted value
-  expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Net score latency rounded.', `Rounded net score latency: 27.1`]); // Adjusted value
+    expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Calculating net score latency.', 'Starting latency calculations.']);
+    expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Net score latency calculated before rounding.', `Net score latency: 27.1`]); // Adjusted value
+    expect(logMessage).toHaveBeenCalledWith('getNetScoreLatency', ['Net score latency rounded.', `Rounded net score latency: 27.1`]); // Adjusted value
 
-  // Total latency = 1.2 + 3.4 + 5.6 + 7.8 + 9.1 = 27.1
-  expect(result).toEqual(27.1); // Final rounded latency score
-});
+    // Total latency = 1.2 + 3.4 + 5.6 + 7.8 + 9.1 = 27.1
+    expect(result).toEqual(27.1); // Final rounded latency score
+  });
 });
