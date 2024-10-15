@@ -13,7 +13,6 @@ Make sure the following dependencies are installed:
 - **npm** (v6 or higher)
 - **Git** (for cloning repositories)
 - A **GitHub API Token** (used for API access)
-- **isomorphic-git** library (installed via npm)
 
 ### Steps
 1. Clone the project repository:
@@ -26,16 +25,18 @@ Make sure the following dependencies are installed:
     npm install
     ```
 
-3. Set your GitHub API token as an environment variable:
+3. Setup .env
     ```bash
-    export GITHUB_TOKEN=your_personal_token_here
+    GITHUB_TOKEN=[Your Github TOekn]
+    LOG_LEVEL=0
+    LOG_FILE=log.log
     ```
 
 ## Usage
 The CLI is designed to analyze npm modules by interacting with GitHub repositories and running metric evaluations. To run the tool, use the following command:
 
 ```bash
-npm ./run 
+./run test
 ```
 
 Example:
@@ -43,24 +44,11 @@ Example:
 npm ./run __tests__/data/sample_urls.txt
 ```
 
-## Options
-The CLI provides several options to customize its behavior:
-
-- `--repo`: **(Required)** Specifies the URL of the GitHub repository to analyze.
-- `--metrics`: **(Optional)** Comma-separated list of metrics to evaluate (e.g., `correctness`, `security`, `license`). If not specified, all available metrics will be evaluated.
-- `--output`: **(Optional)** Specifies the output format (`json`, `yaml`, or `text`). Default is `text`.
-- `--parallel`: **(Optional)** Enables parallel processing to analyze multiple repositories concurrently.
-- `--log-level`: **(Optional)** Defines the verbosity of logs (`info`, `debug`, `warn`). Default is `info`.
-
 ## Configuration
 The CLI requires a GitHub token for API access. To configure this:
 
 1. Obtain a GitHub personal access token by following [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-2. Set the token as an environment variable in your terminal:
-
-   ```bash
-   export GITHUB_TOKEN=your_personal_token_here
-
+2. Set the token in your .env file:
 
 ## Contributing
 We welcome contributions from the community. To contribute, please follow these steps:
@@ -109,3 +97,5 @@ If you have any questions, suggestions, or need further information, feel free t
 ### Francisco Ramirez
 - **Email:** [fjramire@purdue.edu](mailto:fjramire@purdue.edu)
 - **GitHub:** [franjramirez](https://github.com/franjramirez)
+
+## Now with updates from Rushil, Eli, Cooper, and Tom
