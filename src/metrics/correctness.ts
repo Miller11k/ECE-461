@@ -1,7 +1,7 @@
 import { getGitHubAPILink } from '../githubData';
 import { fetchJsonFromApi } from '../API';
 import { getTimestampWithThreeDecimalPlaces } from './getLatency';
-import { logMessage } from '../logFile';
+import { logger } from '../logFile';
 
 /**
  * Calculates the Correctness score based on various repository factors such as open issues,
@@ -12,10 +12,8 @@ import { logMessage } from '../logFile';
  */
 export async function calculateCorrectness(URL: string): Promise<{ score: number; latency: number; }> {
     const latency_start = getTimestampWithThreeDecimalPlaces();
-    logMessage('calculateCorrectness', ['Starting correctness calculation.', `URL: ${URL}`]);
 
     const API_link = getGitHubAPILink(URL);
-    logMessage('calculateCorrectness', ['API link constructed.', `API link: ${API_link}`]);
 
     // Fetch the data in parallel
     const [
@@ -31,18 +29,15 @@ export async function calculateCorrectness(URL: string): Promise<{ score: number
         fetchJsonFromApi(API_link + '/issues?state=closed'), // Fetch closed issues
         fetchJsonFromApi(API_link + '/issues?state=open')    // Fetch open issues
     ]);
-    logMessage('calculateCorrectness', ['Data fetched in parallel.', 'Fetched repository, pull request, and issue data.']);
 
     // Calculate useful metrics
     const totalIssues = closedIssuesData.length + openIssuesData.length;
     const totalPullRequests = closedPullData.length + openPullData.length;
-    logMessage('calculateCorrectness', ['Calculating metrics.', `Total Issues: ${totalIssues}, Total Pull Requests: ${totalPullRequests}`]);
 
     const issueResolutionRate = totalIssues ? closedIssuesData.length / totalIssues : 1; // Calculate issue resolution rate
     const pullRequestMergeRate = totalPullRequests ? closedPullData.length / totalPullRequests : 1; // Calculate pull request merge rate
 
     const openIssuesCount = repoData.open_issues_count || openIssuesData.length; // Get the count of open issues
-    logMessage('calculateCorrectness', ['Metrics calculated.', `Issue Resolution Rate: ${issueResolutionRate}, Pull Request Merge Rate: ${pullRequestMergeRate}`]);
 
     // Define reasonable maximums for issues and pull requests
     const MAX_ISSUES = 150;
@@ -51,18 +46,18 @@ export async function calculateCorrectness(URL: string): Promise<{ score: number
     // Normalize the open issues and pull requests to create a score
     const issueScore = 1 - Math.min(openIssuesCount / MAX_ISSUES, 1); // Score based on open issues
     const pullRequestScore = Math.min(closedPullData.length / MAX_PULL_REQUESTS, 1); // Score based on closed pull requests
-    logMessage('calculateCorrectness', ['Normalizing scores.', `Issue Score: ${issueScore}, Pull Request Score: ${pullRequestScore}`]);
+    logger.debug(`calculateCorrectness Normalizing scores. Issue Score: ${issueScore}, Pull Request Score: ${pullRequestScore}`);
 
     // Combine the metrics with defined weights
     const combinedScore = 0.4 * issueScore + 0.3 * pullRequestScore + 0.15 * issueResolutionRate + 0.15 * pullRequestMergeRate;
 
     // Round the score to 1 decimal place
     const roundedScore = parseFloat(combinedScore.toFixed(1));
-    logMessage('calculateCorrectness', ['Combined score calculated.', `Rounded Score: ${roundedScore}`]);
+    logger.debug(`calculateCorrectness Combined score calculated. Rounded Score: ${roundedScore}`);
 
     // Calculate latency in milliseconds
     const latencyMs = parseFloat((getTimestampWithThreeDecimalPlaces() - latency_start).toFixed(3));
-    logMessage('calculateCorrectness', ['Latency calculated.', `Latency: ${latencyMs} ms`]);
+    logger.debug(`calculateCorrectness Latency calculated. Latency: ${latencyMs} ms`);
 
     return { score: roundedScore, latency: latencyMs }; // Return the final score and latency
 }

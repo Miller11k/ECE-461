@@ -8,7 +8,7 @@ import { calculateRampUp } from "./rampUp";
 import { calculateResponsiveMaintainer } from "./responsiveMaintainer";
 import { getNetScore, getNetScoreLatency } from "./netScore";
 import { getNumberOfCores } from "../multithread";
-import { logMessage } from '../logFile';
+import { logger } from '../logFile';
 
 /**
  * Fetches and calculates various metrics for a given GitHub or npm repository URL.
@@ -16,27 +16,15 @@ import { logMessage } from '../logFile';
  * @param {string} URL - The repository URL to analyze.
  * @returns {Promise<string>} A promise that resolves to a formatted JSON string containing the calculated metrics.
  */
-export async function getMetrics(URL: string): Promise<string> {
-    logMessage('getMetrics', ['Initializing metrics calculation.', 'Starting to create empty JSON.']);
-  
+export async function getMetrics(URL: string): Promise<string> {  
     let repo_data = initJSON(); // Initialize an empty JSON object for storing results
-    logMessage('getMetrics', ['Empty JSON created.', 'Initialized repo_data.']);
-
-    logMessage('getMetrics', ['Fetching number of cores.', 'Calling getNumberOfCores.']);
     let num_cores = getNumberOfCores(); // Get the number of processing cores available
-    logMessage('getMetrics', ['Number of cores fetched.', `Cores: ${num_cores}`]);
-
-    logMessage('getMetrics', ['Setting repository URL.', `URL: ${URL}`]);
     repo_data.URL = URL; // Store the original URL in the JSON object
 
     // Convert npmjs URL to Node.js API link if necessary
     if (URLType(URL) === "npmjs") {
-        logMessage('getMetrics', ['Converting npmjs URL to Node.js API link.', `Original URL: ${URL}`]);
         URL = await getNodeJsAPILink(URL); // Fetch the Node.js API link
-        logMessage('getMetrics', ['Converted npmjs URL.', `New URL: ${URL}`]);
     }
-
-    logMessage('getMetrics', ['Calculating metrics concurrently.', 'Starting Promise.all for metrics.']);
     
     // Fetch various metrics concurrently
     const [
@@ -53,8 +41,6 @@ export async function getMetrics(URL: string): Promise<string> {
         calculateResponsiveMaintainer(URL)
     ]);
 
-    logMessage('getMetrics', ['Metrics calculation complete.', 'Storing results in repo_data.']);
-
     // Store the calculated metrics and their latencies in the JSON object
     repo_data.BusFactor = busFactorScore;
     repo_data.BusFactor_Latency = busFactorLatency;
@@ -67,9 +53,6 @@ export async function getMetrics(URL: string): Promise<string> {
     repo_data.ResponsiveMaintainer = responsiveMaintainerScore;
     repo_data.ResponsiveMaintainer_Latency = responsiveMaintainerLatency;
 
-    logMessage('getMetrics', ['Results stored.', 'Calculating Net Score and Latency.']);
-
-    // Calculate the Net Score and its latency
     const netScore = await getNetScore(
         rampUpScore,
         correctnessScore,
@@ -77,8 +60,6 @@ export async function getMetrics(URL: string): Promise<string> {
         responsiveMaintainerScore,
         licenseScore
     );
-
-    logMessage('getMetrics', ['Net Score calculated.', `Net Score: ${netScore}`]);
 
     const netScore_Latency = await getNetScoreLatency(
         rampUpLatency,
@@ -88,13 +69,11 @@ export async function getMetrics(URL: string): Promise<string> {
         licenseLatency
     );
 
-    logMessage('getMetrics', ['Net Score Latency calculated.', `Net Score Latency: ${netScore_Latency}`]);
+    logger.debug(`getMetrics Net Score Latency calculated. Net Score Latency: ${netScore_Latency}`);
 
     // Store the Net Score and latency
     repo_data.NetScore = netScore;
     repo_data.NetScore_Latency = netScore_Latency;
-
-    logMessage('getMetrics', ['Returning formatted JSON data.', 'Finalizing metrics response.']);
   
     return formatJSON(repo_data); // Return the formatted JSON string
 }

@@ -1,4 +1,4 @@
-import { logMessage } from '../logFile';
+import { logger } from '../logFile';
 
 /**
  * Calculates the net score based on various metrics.
@@ -20,7 +20,6 @@ export async function getNetScore(
     responsive_maintainer: number,
     license: number
 ): Promise<number> {
-    logMessage('getNetScore', ['Calculating net score.', 'Starting calculations.']);
 
     // Initialize net score to zero
     let net_score = 0;
@@ -32,11 +31,10 @@ export async function getNetScore(
     net_score += (0.1) * ramp_up_time;       // Weighted Ramp-Up Time score (10%)
     net_score = license ? net_score + 0.2 : 0;          // Weighted License score (20%)
 
-    logMessage('getNetScore', ['Net score calculated before rounding.', `Net score: ${net_score}`]);
 
     // Round the net score to one decimal place
     net_score = parseFloat(net_score.toFixed(1));
-    logMessage('getNetScore', ['Net score rounded.', `Rounded net score: ${net_score}`]);
+    logger.debug(`getNetScore 'Net score rounded. Rounded net score: ${net_score}`);
 
     return net_score; // Return the final net score
 }
@@ -59,16 +57,14 @@ export async function getNetScoreLatency(
     responsive_maintainer_latency: number,
     license_latency: number
 ): Promise<number> {
-    logMessage('getNetScoreLatency', ['Calculating net score latency.', 'Starting latency calculations.']);
-
     // Calculate total latency by summing individual latencies
     let netScore_Latency = ramp_up_latency + correctness_latency + bus_factor_latency + responsive_maintainer_latency + license_latency;
 
-    logMessage('getNetScoreLatency', ['Net score latency calculated before rounding.', `Net score latency: ${netScore_Latency}`]);
+    logger.debug(`getNetScoreLatency Net score latency calculated before rounding. Net score latency: ${netScore_Latency}`);
 
     // Round the total latency to one decimal place
     netScore_Latency = parseFloat(netScore_Latency.toFixed(3));
-    logMessage('getNetScoreLatency', ['Net score latency rounded.', `Rounded net score latency: ${netScore_Latency}`]);
+    logger.debug(`getNetScoreLatency Net score latency rounded. Rounded net score latency: ${netScore_Latency}`);
 
     return netScore_Latency; // Return the final net score latency
 }

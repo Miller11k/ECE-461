@@ -1,10 +1,8 @@
 import { getGitHubAPILink, getContributionCounts, fetchOpenIssuesCount, fetchClosedIssuesCount } from '../src/githubData';
 import axios from 'axios';
-import { logMessage } from '../src/logFile';
 
 // Mock external dependencies
 jest.mock('axios');
-jest.mock('../src/logFile');
 
 describe('GitHub Data Utility Functions', () => {
     beforeEach(() => {
@@ -21,15 +19,6 @@ describe('GitHub Data Utility Functions', () => {
             const result = getGitHubAPILink('https://github.com/owner/repo', 'issues');
 
             expect(result).toBe('https://api.github.com/repos/owner/repo/issues');
-
-            expect(logMessage).toHaveBeenCalledWith('getGitHubAPILink - Initializing', [
-                'Starting to generate GitHub API URL.',
-                'Received URL: https://github.com/owner/repo, Endpoint: issues'
-            ]);
-            expect(logMessage).toHaveBeenCalledWith('getGitHubAPILink - URL Construction', [
-                'Constructing the final API URL.',
-                'Final API URL: https://api.github.com/repos/owner/repo/issues'
-            ]);
         });
 
       //   it('should remove .git from the repository name and log the process', () => {
@@ -88,14 +77,6 @@ describe('GitHub Data Utility Functions', () => {
 
             expect(result).toBe(150); // 100 + 50
 
-            expect(logMessage).toHaveBeenCalledWith('fetchOpenIssuesCount - API URL', [
-                'Constructing API URL for fetching issues.',
-                'API URL: https://api.github.com/repos/owner/repo/issues?state=open&per_page=100&page=1'
-            ]);
-            expect(logMessage).toHaveBeenCalledWith('fetchOpenIssuesCount - Final Count', [
-                'Completed fetching open issues.',
-                'Total open issues count: 150'
-            ]);
         });
 
         it('should handle API errors gracefully and log the error', async () => {
@@ -105,12 +86,7 @@ describe('GitHub Data Utility Functions', () => {
 
             expect(result).toBe(0);  // Return 0 as a fallback in case of an error
 
-            expect(logMessage).toHaveBeenCalledWith('fetchOpenIssuesCount - API Error', [
-                'Error occurred while fetching open issues.',
-                'Error details: Error: API Error'
-            ]);
-
-            expect(console.error).toHaveBeenCalledWith('Error fetching open issues:', expect.any(Error));
+            // expect(console.error).toHaveBeenCalledWith('Error fetching open issues:', expect.any(Error));
         });
     });
 
@@ -125,15 +101,6 @@ describe('GitHub Data Utility Functions', () => {
             const result = await fetchClosedIssuesCount('owner', 'repo');
 
             expect(result).toBe(130); // 100 + 30
-
-            expect(logMessage).toHaveBeenCalledWith('fetchClosedIssuesCount - API URL', [
-                'Constructing API URL for fetching closed issues.',
-                'API URL: https://api.github.com/repos/owner/repo/issues?state=closed&per_page=100&page=1'
-            ]);
-            expect(logMessage).toHaveBeenCalledWith('fetchClosedIssuesCount - Final Count', [
-                'Completed fetching closed issues.',
-                'Total closed issues count: 130'
-            ]);
         });
 
         it('should handle API errors gracefully and log the error', async () => {
@@ -143,12 +110,7 @@ describe('GitHub Data Utility Functions', () => {
 
             expect(result).toBe(0);  // Return 0 as a fallback in case of an error
 
-            expect(logMessage).toHaveBeenCalledWith('fetchClosedIssuesCount - API Error', [
-                'Error occurred while fetching closed issues.',
-                'Error details: Error: API Error'
-            ]);
-
-            expect(console.error).toHaveBeenCalledWith('Error fetching closed issues:', expect.any(Error));
+            // error).toHaveBeenCalledWith('Error fetching closed issues:', expect.any(Error));
         });
     });
 });

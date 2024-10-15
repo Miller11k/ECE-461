@@ -1,8 +1,5 @@
 import { initJSON, formatJSON, extractLastIssuesUrlFromJson } from '../src/json';
-import { logMessage } from '../src/logFile';
 
-// Mock the logMessage function
-jest.mock('../src/logFile');
 
 describe('JSON Utility Functions', () => {
 
@@ -32,9 +29,7 @@ describe('JSON Utility Functions', () => {
       });
 
       // Ensure logMessage was called correctly
-      expect(logMessage).toHaveBeenCalledWith('initJSON - Start', ['Initializing DataObject with null metrics.', 'Creating default metrics object.']);
-      expect(logMessage).toHaveBeenCalledWith('initJSON - Complete', ['DataObject initialized successfully.', JSON.stringify(result)]);
-    });
+      });
   });
 
   describe('formatJSON', () => {
@@ -61,10 +56,7 @@ describe('JSON Utility Functions', () => {
       expect(formattedJSON).toBe(JSON.stringify(dataObject).replace(/,(?=\S)/g, ', '));
 
       // Ensure logMessage was called correctly
-      expect(logMessage).toHaveBeenCalledWith('formatJSON - Start', ['Formatting DataObject to JSON string.', `DataObject: ${JSON.stringify(dataObject)}`]);
-      expect(logMessage).toHaveBeenCalledWith('formatJSON - JSON String Created', ['Initial JSON string created.', JSON.stringify(dataObject)]);
-      expect(logMessage).toHaveBeenCalledWith('formatJSON - Spaces Added', ['Formatted JSON string with spaces.', formattedJSON]);
-    });
+      });
   });
 
   describe('extractLastIssuesUrlFromJson', () => {
@@ -82,10 +74,6 @@ describe('JSON Utility Functions', () => {
       expect(result).toBe('https://github.com/example/repo/issues2');
 
       // Ensure logMessage was called correctly
-      expect(logMessage).toHaveBeenCalledWith('extractLastIssuesUrlFromJson - Start', ['Extracting issues URL from package data.', `Package Data: ${JSON.stringify(mockPackageData)}`]);
-      expect(logMessage).toHaveBeenCalledWith('extractLastIssuesUrlFromJson - Issues URL Found', ['Found issues URL for version 1.0.0: https://github.com/example/repo/issues', 'Continuing to check for more versions.']);
-      expect(logMessage).toHaveBeenCalledWith('extractLastIssuesUrlFromJson - Issues URL Found', ['Found issues URL for version 2.0.0: https://github.com/example/repo/issues2', 'Continuing to check for more versions.']);
-      expect(logMessage).toHaveBeenCalledWith('extractLastIssuesUrlFromJson - URL Found', ['Returning last found issues URL.', 'URL: https://github.com/example/repo/issues2']);
     });
 
     it('should return null if no issues URL is found and log the process', () => {
@@ -102,8 +90,6 @@ describe('JSON Utility Functions', () => {
       expect(result).toBeNull();
 
       // Ensure logMessage was called correctly
-      expect(logMessage).toHaveBeenCalledWith('extractLastIssuesUrlFromJson - Start', ['Extracting issues URL from package data.', `Package Data: ${JSON.stringify(mockPackageData)}`]);
-      expect(logMessage).toHaveBeenCalledWith('extractLastIssuesUrlFromJson - No URL Found', ['No GitHub issues URL found in any version.', 'Returning null.']);
     });
   });
 });

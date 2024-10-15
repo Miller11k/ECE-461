@@ -9,7 +9,6 @@ import { calculateRampUp } from '../src/metrics/rampUp';
 import { calculateResponsiveMaintainer } from '../src/metrics/responsiveMaintainer';
 import { getNetScore, getNetScoreLatency } from '../src/metrics/netScore';
 import { getNumberOfCores } from '../src/multithread';
-import { logMessage } from '../src/logFile';
 
 // Mock dependencies
 jest.mock('../src/metrics/busFactor');
@@ -22,7 +21,6 @@ jest.mock('../src/npmjsData');
 jest.mock('../src/json');
 jest.mock('../src/URL');
 jest.mock('../src/multithread');
-jest.mock('../src/logFile');
 
 describe('getMetrics', () => {
   const mockURL = 'https://github.com/example/repo';

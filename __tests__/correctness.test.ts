@@ -2,13 +2,11 @@ import { calculateCorrectness } from '../src/metrics/correctness';
 import { fetchJsonFromApi } from '../src/API';
 import { getGitHubAPILink } from '../src/githubData';
 import { getTimestampWithThreeDecimalPlaces } from '../src/metrics/getLatency';
-import { logMessage } from '../src/logFile';
 
 // Mock dependencies
 jest.mock('../src/API');
 jest.mock('../src/githubData');
 jest.mock('../src/metrics/getLatency');
-jest.mock('../src/logFile');
 
 describe('calculateCorrectness', () => {
   const mockURL = 'https://github.com/example/repo';

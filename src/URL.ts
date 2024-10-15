@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { exit } from 'process';
-import { logMessage } from './logFile';
+import { logger } from './logFile';
 
 /**
  * Checks if a given URL is accessible by making a HEAD request.
@@ -14,12 +14,11 @@ import { logMessage } from './logFile';
  */
 export async function testURL(url: string): Promise<boolean> {
     try {
-        logMessage('testURL', ['Checking URL accessibility.', `Testing URL: ${url}`]);
         const response = await fetch(url, { method: 'HEAD' }); // Make a HEAD request to check accessibility
-        logMessage('testURL', ['URL accessibility check completed.', `Response OK: ${response.ok}`]);
+        logger.debug(`testURL ['URL accessibility check completed. Response OK: ${response.ok}`);
         return response.ok; // Return true if the response is successful
     } catch (error) {
-        logMessage('testURL', ['Error while checking URL accessibility.', `Error: ${error}`]);
+        logger.error('testURL', ['Error while checking URL accessibility.', `Error: ${error}`]);
         return false; // Return false if there was an error
     }
 }
@@ -34,17 +33,16 @@ export async function testURL(url: string): Promise<boolean> {
  * @returns {string} - Returns "github" for GitHub URLs, "npmjs" for npmJS URLs, or "other" if neither.
  */
 export function URLType(url: string): string {
-    logMessage('URLType', ['Determining URL type.', `Evaluating URL: ${url}`]);
     
     let regex = new RegExp("(github|npmjs)\\.com", "i"); // Regex to match GitHub or npmJS domains
     let match = regex.exec(url);
     
     if (match) {
-        logMessage('URLType', ['Match found for URL type.', `Matched type: ${match[1]}`]);
+        logger.debug(`URLType', ['Match found for URL type. Matched type: ${match[1]}`);
         return match[1]; // Return the matched type (github or npmjs)
     }
 
-    logMessage('URLType', ['No match found for URL type.', 'Returning "other".']);
+    logger.error(`URLType', ['No match found for URL type.', 'Returning "other".`);
     return "other"; // Return "other" if no match is found
 }
 
@@ -57,19 +55,17 @@ export function URLType(url: string): string {
  */
 export function parseURLs(filename: string): string[] {
     if (!fs.existsSync(filename)) {
-        logMessage('parseURLs', ['File does not exist.', `Filename: ${filename}`]);
+        logger.error(`parseURLs', ['File does not exist. Filename: ${filename}`);
         exit(1); // Exit if the file does not exist
     }
 
-    logMessage('parseURLs', ['File exists, reading content.', `Filename: ${filename}`]);
     const file_content = fs.readFileSync(filename, 'utf-8'); // Read the content of the file
 
     if (!file_content) {
-        logMessage('parseURLs', ['File content is empty.', 'Returning empty array.']);
         return []; // Return an empty array if the file content is empty
     }
 
-    logMessage('parseURLs', ['Parsing URLs from file content.', `Content length: ${file_content.length}`]);
+    logger.debug('parseURLs', ['Parsing URLs from file content.', `Content length: ${file_content.length}`]);
     return file_content.split('\n'); // Return array of URLs split by newlines
 }
 
@@ -82,11 +78,10 @@ export function parseURLs(filename: string): string[] {
  * @returns {Promise<string[]>} A promise that resolves to an array of valid URLs.
  */
 export async function get_valid_urls(filename: string): Promise<string[]> {
-    logMessage('get_valid_urls', ['Getting valid URLs from file.', `Filename: ${filename}`]);
 
     let args = process.argv.slice(2);
     if (args.length !== 1) { // Check for invalid number of arguments
-        logMessage('get_valid_urls', ['Invalid number of arguments.', 'Exiting with error.']);
+        logger.error(`get_valid_urls', ['Invalid number of arguments. Exiting with error.`);
         exit(1);
     }
 
@@ -95,19 +90,17 @@ export async function get_valid_urls(filename: string): Promise<string[]> {
 
     for (let i = 0; i < url_array.length; i++) {
         try {
-            logMessage('get_valid_urls', ['Testing URL for validity.', `URL: ${url_array[i]}`]);
             if (await testURL(url_array[i])) {
-                logMessage('get_valid_urls', ['Valid URL found.', `Adding URL: ${url_array[i]}`]);
                 valid_urls.push(url_array[i]); // Add valid URL to the list
             } else {
-                logMessage('get_valid_urls', ['Invalid URL found.', `URL: ${url_array[i]}`]);
+                logger.debug('get_valid_urls', ['Invalid URL found.', `URL: ${url_array[i]}`]);
             }
         } catch (error) {
-            logMessage('get_valid_urls', ['Error processing URL.', `Error: ${error}`]);
+            logger.debug(`get_valid_urls Error processing URL.' Error: ${error}`);
             exit(1); // Exit on error
         }
     }
 
-    logMessage('get_valid_urls', ['Returning valid URLs.', `Count: ${valid_urls.length}`]);
+    logger.debug(`get_valid_urls', ['Returning valid URLs. Count: ${valid_urls.length}`);
     return valid_urls; // Return the array of valid URLs
 }

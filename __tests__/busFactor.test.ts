@@ -2,13 +2,11 @@ import { getBusFactor } from '../src/metrics/busFactor';
 import { fetchJsonFromApi } from '../src/API';
 import { getGitHubAPILink, getContributionCounts } from '../src/githubData';
 import { getTimestampWithThreeDecimalPlaces } from '../src/metrics/getLatency';
-import { logMessage } from '../src/logFile';
 
 // Mock dependencies
 jest.mock('../src/API');
 jest.mock('../src/githubData');
 jest.mock('../src/metrics/getLatency');
-jest.mock('../src/logFile');
 
 describe('getBusFactor', () => {
   const mockURL = 'https://github.com/example/repo';

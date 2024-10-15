@@ -3,15 +3,12 @@ import * as path from 'path';
 import git from 'isomorphic-git';
 import http from 'isomorphic-git/http/node';
 import { getTimestampWithThreeDecimalPlaces } from './getLatency';
-import { logMessage } from '../logFile';
+import { logger } from '../logFile';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Store your token in environment variables for security
 
-export async function getLicenseScore(URL: string): Promise<{ score: number, latency: number }> {
-    logMessage('getLicenseScore', ['Starting license score calculation.', `URL: ${URL}`]);
-    
+export async function getLicenseScore(URL: string): Promise<{ score: number, latency: number }> {    
     const latency_start = getTimestampWithThreeDecimalPlaces(); // Start timing the fetch
-    logMessage('getLicenseScore', ['Latency tracking started.', `Start timestamp: ${latency_start}`]);
 
     let gitURL: string | null = "";
     gitURL = URL.replace(/^git\+/, '')
@@ -35,7 +32,6 @@ export async function getLicenseScore(URL: string): Promise<{ score: number, lat
                 password: 'x-oauth-basic' // GitHub tokens are passed as the password
             })
         });
-        logMessage('getLicenseScore', ['Repository cloned successfully.', `Repository URL: ${gitURL}`]);
 
         // Check for a LICENSE file in the root of the repo
         const licenseInfo = await extractLicenseInfo(repoDir);
@@ -44,23 +40,23 @@ export async function getLicenseScore(URL: string): Promise<{ score: number, lat
         if (licenseInfo) {
             // Read the LICENSE file content
             license_score = checkLicenseCompatibility(licenseInfo);
-            logMessage('getLicenseScore', ['LICENSE file found and compatibility checked.', `Score: ${license_score}`]);
+            logger.debug(`getLicenseScore LICENSE file found and compatibility checked. Score: ${license_score}`);
         } else {
-            logMessage('getLicenseScore', ['No LICENSE file found.', 'Score remains 0.']);
+            logger.debug('getLicenseScore No LICENSE file found. Score remains 0.');
         }
 
         // Calculate latency
         const latencyMs = parseFloat((getTimestampWithThreeDecimalPlaces() - latency_start).toFixed(3));
-        logMessage('getLicenseScore', ['Latency calculation complete.', `Latency: ${latencyMs} ms`]);
+        logger.debug(`getLicenseScore Latency calculation complete. Latency: ${latencyMs} ms`);
 
         return { score: license_score, latency: latencyMs };
     } catch (error: any) {
-        logMessage('getLicenseScore', ['Error occurred during license score calculation.', `Error: ${error.message}`]);
+        logger.error(`getLicenseScore Error occurred during license score calculation. Error: ${error.message}`);
         throw error; // Re-throw the error after logging
     } finally {
         // Clean up the cloned repository to avoid clutter
         fs.rmSync(repoDir, { recursive: true, force: true });
-        logMessage('getLicenseScore', ['Temporary repository directory cleaned up.', `Directory: ${repoDir}`]);
+        logger.debug(`getLicenseScore Temporary repository directory cleaned up.', Directory: ${repoDir}`);
     }
 }
 
@@ -69,7 +65,7 @@ async function extractLicenseInfo(cloneDir: string): Promise<string | null> {
 
     // Ensure the directory exists
     if (!fs.existsSync(cloneDir)) {
-        console.error(`Directory does not exist: ${cloneDir}`);
+        logger.error(`Directory does not exist: ${cloneDir}`);
         return null;
     }
 

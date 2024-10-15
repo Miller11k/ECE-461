@@ -2,7 +2,6 @@ import { calculateResponsiveMaintainer } from '../src/metrics/responsiveMaintain
 import { getGitHubAPILink } from '../src/githubData';
 import { fetchJsonFromApi } from '../src/API';
 import { getTimestampWithThreeDecimalPlaces } from '../src/metrics/getLatency';
-import { logMessage } from '../src/logFile';
 
 jest.mock('../src/githubData', () => ({
   getGitHubAPILink: jest.fn(),
@@ -14,10 +13,6 @@ jest.mock('../src/API', () => ({
 
 jest.mock('../src/metrics/getLatency', () => ({
   getTimestampWithThreeDecimalPlaces: jest.fn(),
-}));
-
-jest.mock('../src/logFile', () => ({
-  logMessage: jest.fn(),
 }));
 
 

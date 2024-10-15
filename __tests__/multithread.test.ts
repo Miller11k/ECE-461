@@ -1,10 +1,8 @@
 import { getNumberOfCores } from '../src/multithread';
 import { cpus } from 'os';
-import { logMessage } from '../src/logFile';
 
-// Mock the 'os' module and 'logMessage' function
+// Mock the 'os' module
 jest.mock('os');
-jest.mock('../src/logFile');
 
 describe('getNumberOfCores', () => {
   beforeEach(() => {
@@ -19,9 +17,6 @@ describe('getNumberOfCores', () => {
     const result = getNumberOfCores();
 
     // Check that logMessage was called with the correct messages
-    expect(logMessage).toHaveBeenCalledWith('getNumberOfCores', ['Determining the number of CPU cores.', 'Starting to fetch CPU core count.']);
-    expect(logMessage).toHaveBeenCalledWith('getNumberOfCores', [`Number of CPU cores: 4`, 'Returning the core count.']);
-
     // Ensure the number of CPU cores is correctly returned
     expect(result).toEqual(4);
   });
@@ -31,10 +26,6 @@ describe('getNumberOfCores', () => {
     (cpus as jest.Mock).mockReturnValue([]);
 
     const result = getNumberOfCores();
-
-    // Ensure logMessage is called correctly
-    expect(logMessage).toHaveBeenCalledWith('getNumberOfCores', ['Determining the number of CPU cores.', 'Starting to fetch CPU core count.']);
-    expect(logMessage).toHaveBeenCalledWith('getNumberOfCores', ['Number of CPU cores: 0', 'Returning the core count.']);
 
     // Check that the number of CPU cores is 0
     expect(result).toEqual(0);
@@ -46,11 +37,6 @@ describe('getNumberOfCores', () => {
     (cpus as jest.Mock).mockReturnValue(mockCores);
 
     const result = getNumberOfCores();
-
-    // Ensure logging is done correctly
-    expect(logMessage).toHaveBeenCalledWith('getNumberOfCores', ['Determining the number of CPU cores.', 'Starting to fetch CPU core count.']);
-    expect(logMessage).toHaveBeenCalledWith('getNumberOfCores', [`Number of CPU cores: 8`, 'Returning the core count.']);
-
     // Check the result for 8 CPU cores
     expect(result).toEqual(8);
   });

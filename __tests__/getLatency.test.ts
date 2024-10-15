@@ -1,8 +1,4 @@
 import { getTimestampWithThreeDecimalPlaces } from '../src/metrics/getLatency';
-import { logMessage } from '../src/logFile';
-
-// Mock the logMessage function
-jest.mock('../src/logFile');
 
 describe('getTimestampWithThreeDecimalPlaces', () => {
   let OriginalDate: typeof Date;
@@ -31,14 +27,6 @@ describe('getTimestampWithThreeDecimalPlaces', () => {
     expect(result).toBe(1726914030.456);
     
     // Ensure logMessage was called
-    expect(logMessage).toHaveBeenCalledWith(
-      'getTimestampWithThreeDecimalPlaces',
-      ['Getting current timestamp.', 'Starting to calculate timestamp.']
-    );
-    expect(logMessage).toHaveBeenCalledWith(
-      'getTimestampWithThreeDecimalPlaces',
-      ['Timestamp calculated.', `Seconds: 1726914030, Milliseconds: 456`]
-    );
   });
 
   it('should handle different dates correctly', () => {
